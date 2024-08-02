@@ -68,17 +68,63 @@ function cruceAdmGeneral() {
     }
 }
 
+function mostrarModalDescarga() {
+    document.getElementById('downloadModal').style.display = 'block';
+}
+
+function cerrarModalDescarga() {
+    document.getElementById('downloadModal').style.display = 'none';
+}
+
 function descargarArchivo() {
     if (data) {
-        const json = JSON.stringify(data, null, 2);
-        const blob = new Blob([json], { type: 'application/json' });
+        const fileName = document.getElementById('fileName').value;
+        const fileFormat = document.getElementById('fileFormat').value.toLowerCase();
+
+        let blob;
+        let extension;
+
+        switch (fileFormat) {
+            case 'csv':
+                extension = '.csv';
+                const csvData = Papa.unparse(data);
+                blob = new Blob([csvData], { type: 'text/csv' });
+                break;
+            case 'xlsx':
+                extension = '.xlsx';
+                const worksheetXLSX = XLSX.utils.json_to_sheet(data);
+                const workbookXLSX = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbookXLSX, worksheetXLSX, 'Sheet1');
+                blob = new Blob([XLSX.write(workbookXLSX, { bookType: 'xlsx', type: 'array' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                break;
+            case 'xlsm':
+                extension = '.xlsm';
+                const worksheetXLSM = XLSX.utils.json_to_sheet(data);
+                const workbookXLSM = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbookXLSM, worksheetXLSM, 'Sheet1');
+                blob = new Blob([XLSX.write(workbookXLSM, { bookType: 'xlsm', type: 'array' })], { type: 'application/vnd.ms-excel.sheet.macroEnabled.12' });
+                break;
+            case 'json':
+                extension = '.json';
+                const json = JSON.stringify(data, null, 2);
+                blob = new Blob([json], { type: 'application/json' });
+                break;
+            case 'todos':
+            default:
+                extension = '';
+                blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/octet-stream' });
+                break;
+        }
+
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'datos.json'; // Aquí puedes cambiar el formato y el nombre del archivo
+        a.download = fileName + extension;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+
+        cerrarModalDescarga();
     }
 }
