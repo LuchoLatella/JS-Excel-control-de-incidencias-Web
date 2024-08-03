@@ -20,7 +20,7 @@ export async function limpiarArchivoService(file) {
                     sheet['!autofilter'] = { ref: "A1:" + XLSX.utils.encode_col(sheet['!ref'].split(":")[1]) + 1 };
                 }
 
-                // 4. Ajustar Ancho de Columnas (Se ajusta a través de un array con las anchuras)
+                // 4. Ajustar Ancho de Columnas
                 const columnWidths = [
                     { wpx: 100 }, { wpx: 42.2 }, { wpx: 35.6 }, { wpx: 33.3 }, { wpx: 125.6 },
                     { wpx: 170 }, { wpx: 100 }, { wpx: 63.3 }, { wpx: 200 }, { wpx: 100 },
@@ -45,7 +45,7 @@ export async function limpiarArchivoService(file) {
                 // Generar el nuevo archivo
                 const newWorkbook = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
 
-                resolve(newWorkbook);
+                resolve({ newWorkbook, workbook });
             };
             reader.readAsBinaryString(file);
         } catch (error) {
