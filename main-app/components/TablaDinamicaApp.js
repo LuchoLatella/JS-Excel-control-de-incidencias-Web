@@ -2,19 +2,26 @@ import { tablaDinamicaService } from '../../backend/services/tablaDinamicaServic
 
 export function TablaDinamicaApp() {
     const container = document.createElement('div');
+    container.className = 'container';
+
     const generarButton = document.createElement('button');
     generarButton.textContent = 'Generar Tabla Dinámica';
-    generarButton.onclick = () => generarTablaDinamica();
+    generarButton.onclick = async () => {
+        if (window.cleanedData) {
+            try {
+                const pivotTable = await tablaDinamicaService(window.cleanedData);
+                window.pivotTableData = pivotTable; // Guardar tabla dinámica globalmente
+                alert('Tabla dinámica generada correctamente.');
+                document.getElementById('downloadButton').disabled = false;
+            } catch (err) {
+                console.error(err);
+                alert('Error al generar la tabla dinámica.');
+            }
+        } else {
+            alert('No hay datos limpiados.');
+        }
+    };
 
     container.appendChild(generarButton);
     document.getElementById('app').appendChild(container);
-
-    function generarTablaDinamica() {
-        tablaDinamicaService()
-            .then(data => {
-                console.log('Tabla dinámica:', data);
-                // Mostrar datos de la tabla dinámica en la UI
-            })
-            .catch(err => console.error(err));
-    }
 }
